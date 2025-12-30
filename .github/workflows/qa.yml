@@ -25,21 +25,27 @@ jobs:
 
       - name: Install Composer dependencies
         run: composer install --prefer-dist --no-interaction
+        working-directory: service-app
 
       - name: Install NPM dependencies
         run: npm install
+        working-directory: service-app
 
       - name: Run PHP-CS-Fixer
         run: php vendor/bin/php-cs-fixer fix --dry-run --diff
+        working-directory: service-app
 
       - name: Run PHPStan
         run: php vendor/bin/phpstan analyse
+        working-directory: service-app
 
       - name: Run Rector
         run: php vendor/bin/rector process src --dry-run
+        working-directory: service-app
 
       - name: Run TwigCS
         run: php vendor/bin/twigcs templates
+        working-directory: service-app
 
   tests:
     name: Tests
@@ -74,24 +80,32 @@ jobs:
 
       - name: Install Composer dependencies
         run: composer install --prefer-dist --no-interaction
+        working-directory: service-app
 
       - name: Install NPM dependencies
         run: npm install
+        working-directory: service-app
 
       - name: Build assets for tests
         run: yarn install && yarn dev
+        working-directory: service-app
 
       - name: Create test database
         run: php bin/console doctrine:database:create --env=test --if-not-exists
+        working-directory: service-app
 
       - name: Run migrations
         run: php bin/console doctrine:migrations:migrate --env=test --no-interaction
+        working-directory: service-app
 
       - name: Validate Doctrine schema
         run: php bin/console doctrine:schema:validate --env=test
+        working-directory: service-app
 
       - name: Run PHPUnit tests
         run: php bin/phpunit --colors=always
+        working-directory: service-app
 
       - name: Run Behat tests
         run: vendor/bin/behat --config=behat.yml
+        working-directory: service-app
