@@ -61,6 +61,10 @@ php-cs-fixer:
 arkitect:
 	docker compose exec php php vendor/bin/phparkitect check
 
+behat:
+	docker compose exec php php vendor/bin/behat --config=behat.yml
+
+
 qa-core: php-cs-fixer rector phpstan arkitect twigcs
 
 test:
