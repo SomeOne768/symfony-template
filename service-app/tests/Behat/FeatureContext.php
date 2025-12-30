@@ -5,14 +5,11 @@ declare(strict_types=1);
 namespace App\Tests\Behat;
 
 use Behat\Behat\Context\Context;
-use Behat\Hook\AfterScenario;
-use Behat\Hook\BeforeScenario;
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ElementHtmlException;
 use Behat\Mink\Session;
 use Behat\Mink\WebAssert;
 use PHPUnit\Framework\Assert;
-use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 
 use function trim;
 
@@ -21,7 +18,6 @@ final readonly class FeatureContext implements Context
     public function __construct(private Session $session)
     {
     }
-
 
     /**
      * @Then /^the "([^"]*)" attribute of the "(?P<element>[^"]*)" element should contain "(?P<value>(?:[^"]|\\")*)"$/
