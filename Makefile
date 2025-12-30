@@ -64,6 +64,11 @@ arkitect:
 behat:
 	docker compose exec php php vendor/bin/behat --config=behat.yml
 
+vendor:
+	docker compose exec php composer install --prefer-dist --no-interaction
+	docker compose exec node npm install
+	docker compose exec node yarn dev
+
 
 qa-core: php-cs-fixer rector phpstan arkitect twigcs
 
