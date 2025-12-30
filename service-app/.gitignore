@@ -37,5 +37,5 @@ phpstan.neon
 
 
 ###> friends-of-behat/symfony-extension ###
-#/behat.yml
+/behat.yml
 ###< friends-of-behat/symfony-extension ###
