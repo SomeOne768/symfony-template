@@ -14,6 +14,7 @@ final class ExampleAction
     public function __invoke(Request $request): JsonResponse
     {
         $data = $request->request->all();
+
         return new JsonResponse(['message' => 'Action executed', 'data' => $data]);
     }
 }
