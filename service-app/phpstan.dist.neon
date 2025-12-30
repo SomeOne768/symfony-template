@@ -1,0 +1,39 @@
+includes:
+    - vendor/phpstan/phpstan-deprecation-rules/rules.neon
+    - vendor/phpstan/phpstan-doctrine/extension.neon
+    - vendor/phpstan/phpstan-phpunit/extension.neon
+    - vendor/phpstan/phpstan-strict-rules/rules.neon
+    - vendor/phpstan/phpstan-symfony/extension.neon
+    - vendor/tomasvotruba/type-coverage/config/extension.neon
+
+parameters:
+    tmpDir: %currentWorkingDirectory%/var/cache/phpstan
+    level: 9
+    parallel:
+        jobSize: 20
+        maximumNumberOfProcesses: 12
+        minimumNumberOfJobsPerProcess: 2
+    paths:
+        - src
+        - tests
+    excludePaths:
+        - 'vendor/*'
+        - 'src/Common/Doctrine/DBAL/*'
+    type_coverage:
+        return_type: 97
+        param_type: 97
+        property_type: 97
+        print_suggestions: true
+    treatPhpDocTypesAsCertain: false
+    # below is to ignore errors reported for using named arguments when calling static functions, appears since update to phpstan 2
+    ignoreErrors:
+        -
+            # disable warnings linked to PHPunit
+            message: '#.*PHPUnit\\.*#'
+            paths:
+                - tests/*
+        -
+            # disable warnings linked to Symfony component
+            message: '#.*Symfony\\.*#'
+        -
+            message: '#(Class|Interface) App\\Common\\Repository\\Doctrine\\.* has PHPDoc tag @method for method .*#'
