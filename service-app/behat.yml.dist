@@ -3,6 +3,7 @@ default:
     default:
       contexts:
         - App\Tests\Behat\FeatureContext
+        - Behat\MinkExtension\Context\MinkContext
   extensions:
     FriendsOfBehat\SymfonyExtension:
       bootstrap: tests/bootstrap.php

@@ -2,9 +2,17 @@ default:
   suites:
     default:
       contexts:
+        - Behat\MinkExtension\Context\MinkContext
         - App\Tests\Behat\FeatureContext
+        - App\Tests\Behat\HttpContext
+        - App\Tests\Behat\RequestContext
+        # ajoute tes contexts custom ici
   extensions:
     FriendsOfBehat\SymfonyExtension:
       bootstrap: tests/bootstrap.php
       kernel:
         environment: test
+    Behat\MinkExtension:
+      sessions:
+        symfony:
+          symfony: ~
