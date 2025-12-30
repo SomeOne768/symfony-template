@@ -90,17 +90,14 @@ jobs:
         run: yarn install && yarn dev
         working-directory: service-app
 
-      - name: Wait for MySQL to be ready
+      - name: Wait for MySQL
         run: |
-          for i in {1..30}; do
-            if nc -zv 127.0.0.1 3306; then
-              echo "MySQL is up"
-              break
-            fi
+          until mysqladmin ping -hmysql -uroot -proot --silent; do
             echo "Waiting for MySQL..."
             sleep 2
           done
-    
+      
+
       - name: Create test database
         run: php bin/console doctrine:database:create --env=test --if-not-exists
         working-directory: service-app
