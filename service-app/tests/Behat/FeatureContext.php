@@ -2,11 +2,11 @@
 
 namespace App\Tests\Behat;
 
-use Behat\Behat\Tester\Exception\PendingException;
 use Behat\Behat\Context\Context;
 use Behat\Behat\Context\SnippetAcceptingContext;
-use Behat\Step\When;
+use Behat\Behat\Tester\Exception\PendingException;
 use Behat\Step\Then;
+use Behat\Step\When;
 
 class FeatureContext implements Context, SnippetAcceptingContext
 {

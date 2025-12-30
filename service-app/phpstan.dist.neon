@@ -35,3 +35,7 @@ parameters:
         -
             # disable warnings linked to Symfony component
             message: '#.*Symfony\\.*#'
+
+        - message: '#.*#'
+          paths:
+              - tests/Behat/*
