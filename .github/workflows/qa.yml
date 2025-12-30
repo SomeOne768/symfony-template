@@ -101,6 +101,10 @@ jobs:
             sleep 2
           done
 
+      - name: Load fixtures
+        run: php bin/console doctrine:fixtures:load --env=test --no-interaction
+        working-directory: service-app
+    
       - name: Create test database
         run: php bin/console doctrine:database:create --env=test --if-not-exists
         working-directory: service-app

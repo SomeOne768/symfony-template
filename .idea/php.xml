@@ -173,6 +173,8 @@
       <path value="$PROJECT_DIR$/service-app/vendor/behat/gherkin" />
       <path value="$PROJECT_DIR$/service-app/vendor/dama/doctrine-test-bundle" />
       <path value="$PROJECT_DIR$/service-app/vendor/friends-of-behat/symfony-extension" />
+      <path value="$PROJECT_DIR$/service-app/vendor/doctrine/doctrine-fixtures-bundle" />
+      <path value="$PROJECT_DIR$/service-app/vendor/doctrine/data-fixtures" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="8.5">

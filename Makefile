@@ -1,12 +1,15 @@
 .PHONY: all init composer npm fix phpstan rector twigcs arkitect qa assets-dev assets-watch db migrate
 
-init: composer npm db migrate assets
+init: composer npm create-db migrate yarn
 
 composer:
 	docker compose exec php composer $(cmd)
 
-db:
+create-db:
 	docker compose exec php php bin/console doctrine:database:create --if-not-exists
+
+create-db-test:
+	docker compose exec php php bin/console doctrine:database:create --env=test --if-not-exists
 
 migrate:
 	docker compose exec php php bin/console doctrine:migrations:migrate --no-interaction
@@ -69,6 +72,14 @@ vendor:
 	docker compose exec node npm install
 	docker compose exec node yarn dev
 
+wait-mysql:
+	docker compose exec php sh -c 'until nc -z mysql 3306; do echo "Waiting for MySQL..."; sleep 2; done'
+
+fixtures: wait-mysql
+	docker compose exec php php bin/console doctrine:fixtures:load --env=dev --no-interaction
+
+fixtures-test: wait-mysql
+	docker compose exec php php bin/console doctrine:fixtures:load --env=test --no-interaction
 
 qa-core: php-cs-fixer rector phpstan arkitect twigcs
 
