@@ -86,6 +86,8 @@ vendor:
 #################################
 qa-core: php-cs-fixer rector phpstan arkitect twigcs
 
+qa-core-full: qa-core behat test
+
 #################################
 # Tests
 #################################

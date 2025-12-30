@@ -90,9 +90,9 @@ jobs:
         run: yarn install && yarn dev
         working-directory: service-app
 
-      - name: Create database manually
-        run: |
-          mysql -h mysql -u symfony -psymfony -e "CREATE DATABASE IF NOT EXISTS symfony_test;"
+      - name: Create test database
+        run: php bin/console doctrine:database:create --env=test --if-not-exists
+        working-directory: service-app
 
       - name: Run migrations
         run: php bin/console doctrine:migrations:migrate --env=test --no-interaction
