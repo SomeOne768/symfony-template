@@ -125,5 +125,5 @@ jobs:
         working-directory: service-app
 
       - name: Run Behat tests
-        run: php bin/behat --config=behat.yml
+        run: php vendor/bin/behat --config=behat.yml
         working-directory: service-app
