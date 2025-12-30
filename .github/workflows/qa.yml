@@ -90,8 +90,22 @@ jobs:
         run: yarn install && yarn dev
         working-directory: service-app
 
-      - name: Create test database
-        run: php bin/console doctrine:database:create --env=test --if-not-exists
+      - name: Wait for MySQL to be ready
+        run: |
+          for i in {1..30}; do
+            if mysqladmin ping -h 127.0.0.1 -uroot -proot --silent; then
+              echo "MySQL is up"
+              break
+            fi
+            echo "Waiting for MySQL..."
+            sleep 2
+          done
+        working-directory: service-app
+
+      - name: Reset test database
+        run: |
+          php bin/console doctrine:database:drop --env=test --if-exists --force
+          php bin/console doctrine:database:create --env=test --if-not-exists
         working-directory: service-app
 
       - name: Run migrations
@@ -102,14 +116,14 @@ jobs:
         run: php bin/console doctrine:schema:validate --env=test
         working-directory: service-app
 
-#      - name: Load fixtures
-#        run: php bin/console doctrine:fixtures:load --env=test --no-interaction
-#        working-directory: service-app
+      #      - name: Load fixtures
+      #        run: php bin/console doctrine:fixtures:load --env=test --no-interaction
+      #        working-directory: service-app
 
       - name: Run PHPUnit tests
         run: php bin/phpunit --colors=always
         working-directory: service-app
 
       - name: Run Behat tests
-        run: vendor/bin/behat --config=behat.yml
+        run: php bin/behat --config=behat.yml
         working-directory: service-app
