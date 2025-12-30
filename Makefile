@@ -59,7 +59,7 @@ cache:
 	docker compose exec php php bin/console cache:clear
 
 phpstan:
-	docker compose exec php vendor/bin/phpstan analyse
+	docker compose exec php vendor/bin/phpstan analyse --memory-limit=2G #-1
 
 twigcs:
 	docker compose exec php vendor/bin/twigcs templates
