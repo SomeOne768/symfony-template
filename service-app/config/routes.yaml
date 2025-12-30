@@ -9,3 +9,10 @@
 
 controllers:
     resource: routing.controllers
+# example api
+controllers_example:
+    resource:
+        path: ../src/Example/Actions/
+        host: '%env(string:API_URL)%'
+        namespace: App\Example\Actions
+    type: attribute
