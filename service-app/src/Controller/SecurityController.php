@@ -34,9 +34,7 @@ class SecurityController extends AbstractController
             $user->setPassword($user->getPlainPassword() ?? '');
 
             $user->setRoles(['ROLE_USER']);
-
             $entityManager->persist($user);
-
             $entityManager->flush();
 
             return $this->redirectToRoute('app_login');
