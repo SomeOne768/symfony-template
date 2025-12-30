@@ -1,21 +1,28 @@
+# Include database Makefile
 -include Makefile.database.mk
 
-.PHONY: all init composer npm fix phpstan rector twigcs arkitect qa assets-dev assets-watch db migrate
+#################################
+# Phony targets
+#################################
+.PHONY: all init composer npm fix phpstan rector twigcs arkitect qa assets-dev assets-watch db migrate test up down restart build logs bash vendor
 
+#################################
+# Initialization
+#################################
 init: composer npm create-db migrate yarn
 
+#################################
+# Composer & NPM commands
+#################################
 composer:
 	docker compose exec php composer $(cmd)
 
-create-db:
-	docker compose exec php php bin/console doctrine:database:create --if-not-exists
+npm:
+	docker compose exec node npm $(cmd)
 
-create-db-test:
-	docker compose exec php php bin/console doctrine:database:create --env=test --if-not-exists
-
-migrate:
-	docker compose exec php php bin/console doctrine:migrations:migrate --no-interaction
-
+#################################
+# Yarn / Node commands
+#################################
 yarn:
 	docker compose exec node npm run dev
 
@@ -25,6 +32,9 @@ yarn-dev:
 yarn-watch:
 	docker compose exec node yarn watch
 
+#################################
+# Docker compose management
+#################################
 up:
 	docker compose up -d --force-recreate --remove-orphans
 
@@ -42,12 +52,9 @@ logs:
 bash:
 	docker compose exec php bash
 
-composer:
-	docker compose exec php composer $(cmd)
-
-npm:
-	docker compose exec node npm $(cmd)
-
+#################################
+# Symfony / Quality tools
+#################################
 cache:
 	docker compose exec php php bin/console cache:clear
 
@@ -74,9 +81,14 @@ vendor:
 	docker compose exec node npm install
 	docker compose exec node yarn dev
 
+#################################
+# QA / Code quality
+#################################
 qa-core: php-cs-fixer rector phpstan arkitect twigcs
 
-
+#################################
+# Tests
+#################################
 test:
 	docker compose exec php php bin/console doctrine:database:create --env=test --if-not-exists
 	docker compose exec php php bin/console doctrine:migrations:migrate --env=test --no-interaction
