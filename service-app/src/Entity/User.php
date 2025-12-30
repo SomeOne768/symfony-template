@@ -102,7 +102,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function __serialize(): array
     {
         $data = (array) $this;
-        /* @phpstan-ignore-next-line  */
+        /* @phpstan-ignore-next-line */
         $data["\0".self::class."\0password"] = hash('crc32c', $this->password);
 
         return $data;
