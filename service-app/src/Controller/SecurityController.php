@@ -27,11 +27,11 @@ class SecurityController extends AbstractController
             /** @var User $user */
             $user = $form->getData();
 
-            /**
+            /*
              * For new entity we need to have not null to pass the check
              * It is then managed by the listener that will hash the plain password
              */
-            $user->setPassword($user->getPlainPassword());
+            $user->setPassword($user->getPlainPassword() ?? '');
 
             $user->setRoles(['ROLE_USER']);
 
