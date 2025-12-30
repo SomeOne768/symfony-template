@@ -100,10 +100,6 @@ jobs:
             echo "Waiting for MySQL..."
             sleep 2
           done
-
-      - name: Load fixtures
-        run: php bin/console doctrine:fixtures:load --env=test --no-interaction
-        working-directory: service-app
     
       - name: Create test database
         run: php bin/console doctrine:database:create --env=test --if-not-exists
@@ -115,6 +111,10 @@ jobs:
 
       - name: Validate Doctrine schema
         run: php bin/console doctrine:schema:validate --env=test
+        working-directory: service-app
+
+      - name: Load fixtures
+        run: php bin/console doctrine:fixtures:load --env=test --no-interaction
         working-directory: service-app
 
       - name: Run PHPUnit tests
