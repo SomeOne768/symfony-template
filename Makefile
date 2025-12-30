@@ -56,9 +56,16 @@ rector:
 	docker compose exec php vendor/bin/rector process src --dry-run
 
 php-cs-fixer:
-	docker compose exec php php /var/www/html/vendor/bin/php-cs-fixer fix
+	docker compose exec php php vendor/bin/php-cs-fixer fix
 
 arkitect:
-	docker compose exec php php /var/www/html/vendor/bin/phparkitect check
+	docker compose exec php php vendor/bin/phparkitect check
 
 qa-core: php-cs-fixer rector phpstan arkitect twigcs
+
+test:
+	docker compose exec php php bin/console doctrine:database:create --env=test --if-not-exists
+	docker compose exec php php bin/console doctrine:migrations:migrate --env=test --no-interaction
+	docker compose exec php php bin/console doctrine:schema:validate --env=test
+	docker compose exec php php bin/phpunit --colors=always
+	docker compose exec php vendor/bin/behat --config=behat.yml

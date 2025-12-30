@@ -27,13 +27,11 @@ parameters:
     treatPhpDocTypesAsCertain: false
     # below is to ignore errors reported for using named arguments when calling static functions, appears since update to phpstan 2
     ignoreErrors:
-        -
-            # disable warnings linked to PHPunit
-            message: '#.*PHPUnit\\.*#'
-            paths:
-                - tests/*
+        #-
+        #    # disable warnings linked to PHPunit
+        #    message: '#.*PHPUnit\\.*#'
+        #    paths:
+        #        - tests/*
         -
             # disable warnings linked to Symfony component
             message: '#.*Symfony\\.*#'
-        -
-            message: '#(Class|Interface) App\\Common\\Repository\\Doctrine\\.* has PHPDoc tag @method for method .*#'
