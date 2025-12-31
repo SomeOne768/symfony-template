@@ -73,9 +73,6 @@ php-cs-fixer:
 arkitect:
 	docker compose exec php php vendor/bin/phparkitect check
 
-behat:
-	docker compose exec php php vendor/bin/behat --config=behat.yml --format=progress --strict
-
 vendor:
 	docker compose exec php composer install --prefer-dist --no-interaction
 	docker compose exec node npm install
@@ -86,14 +83,13 @@ vendor:
 #################################
 qa-core: php-cs-fixer rector phpstan arkitect twigcs
 
-qa-core-full: qa-core behat test
+qa-core-full: qa-core behat phpunit
 
 #################################
 # Tests
 #################################
-test:
-	docker compose exec php php bin/console doctrine:database:create --env=test --if-not-exists
-	docker compose exec php php bin/console doctrine:migrations:migrate --env=test --no-interaction
-	docker compose exec php php bin/console doctrine:schema:validate --env=test
+phpunit:
 	docker compose exec php php bin/phpunit --colors=always
-	docker compose exec php vendor/bin/behat --config=behat.yml
+
+behat:
+	docker compose exec php php vendor/bin/behat --config=behat.yml --format=progress --strict
