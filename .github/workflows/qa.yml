@@ -104,8 +104,12 @@ jobs:
         working-directory: service-app
 
       - name: Load dump
-        run: make dump-load-test
+        run: |
+          echo "Loading dump into TEST database..."
+          mysql -h 127.0.0.1 -u root -proot symfony_test < data/fixtures/db.dump.sql
+          echo "Dump loaded successfully"
         working-directory: .
+
 
       - name: Validate Doctrine schema
         run: php bin/console doctrine:schema:validate --env=test
