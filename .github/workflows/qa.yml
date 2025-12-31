@@ -102,7 +102,7 @@ jobs:
           done
         working-directory: service-app
 
-      - name: Prepare test database
+      - name: Load dump
         run: make dump-load-test
 
       - name: Validate Doctrine schema

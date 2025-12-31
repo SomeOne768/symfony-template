@@ -26,10 +26,11 @@ DUMP_FILE := $(DUMP_DIR)/db.dump.sql
 .PHONY: wait-mysql
 wait-mysql:
 	@echo "$(YELLOW)Waiting for MySQL to be ready...$(RESET)"
-	@until $(MYSQL_EXEC) mysqladmin ping -h localhost -u root -proot --silent; do \
+	@until $(MYSQL_EXEC) mysqladmin ping -h mysql -u root -proot --silent; do \
 		sleep 1; \
 	done
 	@echo "$(GREEN)MySQL is up$(RESET)"
+
 
 
 
