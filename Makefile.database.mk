@@ -32,10 +32,18 @@ DUMP_FILE := $(DUMP_DIR)/db.dump.sql
 .PHONY: wait-mysql
 wait-mysql:
 	@echo "$(YELLOW)Waiting for MySQL to be ready...$(RESET)"
+ifeq ($(CI),true)
+	@until mysql -h 127.0.0.1 -u root -proot -e "SELECT 1;" >/dev/null 2>&1; do \
+		echo "Waiting for MySQL..."; \
+		sleep 1; \
+	done
+else
 	@until $(MYSQL_EXEC) mysqladmin ping -h mysql -u root -proot --silent; do \
 		sleep 1; \
 	done
+endif
 	@echo "$(GREEN)MySQL is up$(RESET)"
+
 
 
 
@@ -103,15 +111,3 @@ dump-load-test: wait-mysql db-test-drop db-test-create db-test-migrate
 	@echo "$(YELLOW)Loading dump into TEST database...$(RESET)"
 	$(MYSQL_EXEC) mysql -u root -proot $(DB_TEST_NAME) < $(DUMP_FILE)
 	@echo "$(GREEN)TEST database loaded$(RESET)"
-
-ifeq ($(CI),true)
-dump-load-test: db-test-create db-test-migrate
-	@echo "$(YELLOW)Loading dump into TEST database...$(RESET)"
-	$(MYSQL_EXEC) mysql -u root -proot $(DB_TEST_NAME) < $(DUMP_FILE)
-	@echo "$(GREEN)TEST database loaded$(RESET)"
-else
-dump-load-test: wait-mysql db-test-drop db-test-create db-test-migrate
-	@echo "$(YELLOW)Loading dump into TEST database...$(RESET)"
-	$(MYSQL_EXEC) mysql -u root -proot $(DB_TEST_NAME) < $(DUMP_FILE)
-	@echo "$(GREEN)TEST database loaded$(RESET)"
-endif
