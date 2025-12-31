@@ -14,6 +14,32 @@ cp service-app/.env.dist service-app/.env
 make init
 ```
 
+### Add hostname and HTTPS
+
+If you want to add a hostname and allow https (certified by yourself):
+
+#### install a certificate authority
+```bash
+sudo apt install mkcert
+sudo apt install libnss3-tools
+mkcert -install
+```
+
+#### Generate your certificate
+
+```bash
+mkcert service-app.local
+```
+
+#### Add hostname in /etc/hosts
+
+```bash
+sudo nano /etc/hosts 
+And add in the file:  127.0.0.1 service-app.local
+```
+
+You must then restart your browser
+
 
 ## Commandes utiles
 
@@ -24,6 +50,6 @@ make rector     # Rector
 make twigcs     # TwigCS
 make arkitect   # PHPArkitect
 make qa         # Full QA pipeline
-make composer cmd="require package"
-make npm cmd="install"
+make vendor     # install/rebuild the app
+make yarn-watch # detect changes on css/js files
 ```
