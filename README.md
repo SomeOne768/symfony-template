@@ -12,6 +12,7 @@ Template Symfony 7.4 avec Docker, PHP 8.3 et outils de qualité.
 ```bash
 cp service-app/.env.dist service-app/.env
 make init
+make vendor
 ```
 
 ### Add hostname and HTTPS
@@ -44,12 +45,21 @@ You must then restart your browser
 ## Commandes utiles
 
 ```bash
-make fix        # PHP-CS-Fixer
-make phpstan    # PHPStan
-make rector     # Rector
-make twigcs     # TwigCS
-make arkitect   # PHPArkitect
-make qa         # Full QA pipeline
-make vendor     # install/rebuild the app
-make yarn-watch # detect changes on css/js files
+make php-cs-fixer    # PHP-CS-Fixer
+make phpstan         # PHPStan
+make rector          # Rector
+make twigcs          # TwigCS
+make arkitect        # PHPArkitect
+make qa-core         # Full QA pipeline
+make vendor          # install/rebuild the app
+make yarn-watch      # detect changes on css/js files
 ```
+
+
+# TODO
+
+- add renovate
+- clean makefile
+- clean .env and dist files
+```
+
