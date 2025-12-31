@@ -104,6 +104,7 @@ jobs:
 
       - name: Load dump
         run: make dump-load-test
+        working-directory: .
 
       - name: Validate Doctrine schema
         run: php bin/console doctrine:schema:validate --env=test
