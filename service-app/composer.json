@@ -98,9 +98,13 @@
         }
     },
     "require-dev": {
-        "behat/behat": "^3.29",
+        "behat/behat": "^3.22",
+        "behat/gherkin": "^4.14",
+        "behat/mink": "^1.13",
+        "behat/mink-browserkit-driver": "^2.3",
         "dama/doctrine-test-bundle": "^8.4",
         "doctrine/doctrine-fixtures-bundle": "^4.3",
+        "friends-of-behat/mink-extension": "^2.7",
         "friends-of-behat/symfony-extension": "^2.6",
         "friendsofphp/php-cs-fixer": "^3.92",
         "friendsoftwig/twigcs": "^6.6",

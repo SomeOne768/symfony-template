@@ -59,7 +59,7 @@ cache:
 	docker compose exec php php bin/console cache:clear
 
 phpstan:
-	docker compose exec php vendor/bin/phpstan analyse
+	docker compose exec php vendor/bin/phpstan analyse --memory-limit=2G #-1
 
 twigcs:
 	docker compose exec php vendor/bin/twigcs templates
@@ -74,7 +74,7 @@ arkitect:
 	docker compose exec php php vendor/bin/phparkitect check
 
 behat:
-	docker compose exec php php vendor/bin/behat --config=behat.yml
+	docker compose exec php php vendor/bin/behat --config=behat.yml --format=progress --strict
 
 vendor:
 	docker compose exec php composer install --prefer-dist --no-interaction
