@@ -59,6 +59,7 @@ jobs:
           MYSQL_DATABASE: symfony
           MYSQL_USER: symfony
           MYSQL_PASSWORD: symfony
+          CI: true
         ports:
           - 3306:3306
         options: >-
