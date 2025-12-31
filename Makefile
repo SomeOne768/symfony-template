@@ -74,7 +74,7 @@ arkitect:
 	docker compose exec php php vendor/bin/phparkitect check
 
 behat:
-	docker compose exec php php vendor/bin/behat --config=behat.yml
+	docker compose exec php php vendor/bin/behat --config=behat.yml --format=progress --strict
 
 vendor:
 	docker compose exec php composer install --prefer-dist --no-interaction

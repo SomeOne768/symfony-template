@@ -2,21 +2,28 @@
 # Colors
 #################################
 YELLOW := \033[0;33m
-GREEN  := \033[0;32m
-RESET  := \033[0m
+GREEN := \033[0;32m
+RESET := \033[0m
 
 #################################
 # Docker
 #################################
-PHP_EXEC   := docker compose exec php
+PHP_EXEC := docker compose exec php
 MYSQL_EXEC := docker compose exec -T mysql
 
 #################################
-# MySQL
+# Databases
 #################################
+DB_NAME := symfony
+DB_TEST_NAME := symfony_test
+
+#################################
+# Dump
+#################################
+DUMP_DIR := data/fixtures
+DUMP_FILE := $(DUMP_DIR)/db.dump.sql
 
 .PHONY: wait-mysql
-
 wait-mysql:
 	@echo "$(YELLOW)Waiting for MySQL to be ready...$(RESET)"
 	@until $(MYSQL_EXEC) mysqladmin ping -h localhost -u root -proot --silent; do \
@@ -24,14 +31,13 @@ wait-mysql:
 	done
 	@echo "$(GREEN)MySQL is up$(RESET)"
 
-#################################
-# Doctrine databases
-#################################
 
+
+#################################
+# Doctrine DEV
+#################################
 .PHONY: db-drop db-create db-migrate db-reset
-.PHONY: db-test-drop db-test-create db-test-migrate db-test-reset
 
-## DEV database
 db-drop: wait-mysql
 	$(PHP_EXEC) php bin/console doctrine:database:drop --if-exists --force
 
@@ -43,7 +49,12 @@ db-migrate:
 
 db-reset: db-drop db-create db-migrate
 
-## TEST database
+
+#################################
+# Doctrine TEST
+#################################
+.PHONY: db-test-drop db-test-create db-test-migrate db-test-reset
+
 db-test-drop: wait-mysql
 	$(PHP_EXEC) php bin/console doctrine:database:drop --env=test --if-exists --force
 
@@ -55,54 +66,33 @@ db-test-migrate:
 
 db-test-reset: db-test-drop db-test-create db-test-migrate
 
-#################################
-# SQL dump strategy
-#################################
 
-DUMP_PATH := /var/www/html/data/fixtures/test_dump.sql
-
+#################################
+# SQL dump
+#################################
 .PHONY: dump-generate dump-load dump-load-test
 
-## Generate dump from DEV database
 dump-generate: wait-mysql
-	@mkdir -p data/fixtures
-	docker compose exec -T mysql \
-		mysqldump \
+	@mkdir -p $(DUMP_DIR)
+	@echo "$(YELLOW)Generating dump from DEV database...$(RESET)"
+	$(MYSQL_EXEC) mysqldump \
 		--default-character-set=utf8mb4 \
 		--skip-comments \
 		--no-create-db \
 		--no-create-info \
 		--skip-triggers \
-		--ignore-table=symfony.doctrine_migration_versions \
-		-u root -proot symfony \
-		> data/fixtures/load_dump.sql
-	@echo "$(GREEN)Dump generated at data/fixtures/load_dump.sql$(RESET)"
+		--ignore-table=$(DB_NAME).doctrine_migration_versions \
+		-u root -proot $(DB_NAME) \
+		| sed 's/ AUTO_INCREMENT=[0-9]*//g' \
+		> $(DUMP_FILE)
+	@echo "$(GREEN)Dump generated: $(DUMP_FILE)$(RESET)"
 
+dump-load: wait-mysql db-drop db-create db-migrate
+	@echo "$(YELLOW)Loading dump into DEV database...$(RESET)"
+	$(MYSQL_EXEC) mysql -u root -proot $(DB_NAME) < $(DUMP_FILE)
+	@echo "$(GREEN)DEV database loaded$(RESET)"
 
-## Load dump into DEV database
-dump-load: wait-mysql db-drop db-create
-	docker compose exec -T mysql \
-		mysql -u root -proot symfony \
-		< data/fixtures/load_dump.sql
-	@echo "$(GREEN)DEV database loaded from dump$(RESET)"
-
-## Load dump into TEST database
-dump-load-test: wait-mysql db-test-drop db-test-create
-	docker compose exec -T mysql \
-		mysql -u root -proot symfony_test \
-		< data/fixtures/load_dump.sql
-	@echo "$(GREEN)TEST database loaded from dump$(RESET)"
-
-
-
-#################################
-# Fixtures (optional / legacy)
-#################################
-
-.PHONY: fixtures fixtures-test
-
-fixtures: wait-mysql
-	$(PHP_EXEC) php bin/console doctrine:fixtures:load --env=dev --no-interaction
-
-fixtures-test: wait-mysql
-	$(PHP_EXEC) php bin/console doctrine:fixtures:load --env=test --no-interaction
+dump-load-test: wait-mysql db-test-drop db-test-create db-test-migrate
+	@echo "$(YELLOW)Loading dump into TEST database...$(RESET)"
+	$(MYSQL_EXEC) mysql -u root -proot $(DB_TEST_NAME) < $(DUMP_FILE)
+	@echo "$(GREEN)TEST database loaded$(RESET)"
