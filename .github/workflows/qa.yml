@@ -102,15 +102,8 @@ jobs:
           done
         working-directory: service-app
 
-      - name: Reset test database
-        run: |
-          php bin/console doctrine:database:drop --env=test --if-exists --force
-          php bin/console doctrine:database:create --env=test --if-not-exists
-        working-directory: service-app
-
-      - name: Run migrations
-        run: php bin/console doctrine:migrations:migrate --env=test --no-interaction
-        working-directory: service-app
+      - name: Prepare test database
+        run: make dump-load-test
 
       - name: Validate Doctrine schema
         run: php bin/console doctrine:schema:validate --env=test
