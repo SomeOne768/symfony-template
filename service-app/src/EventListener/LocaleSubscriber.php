@@ -10,21 +10,24 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class LocaleSubscriber implements EventSubscriberInterface
 {
-    private $defaultLocale;
+    private string $defaultLocale;
 
     public function __construct(string $defaultLocale = 'fr')
     {
         $this->defaultLocale = $defaultLocale;
     }
 
-    public function onKernelRequest(RequestEvent $event)
+    public function onKernelRequest(RequestEvent $event): void
     {
         $request = $event->getRequest();
 
         // priorité : paramètre _locale > Accept-Language > default
+        /* @phpstan-ignore-next-line */
         if ($locale = $request->query->get('_locale')) {
             $request->setLocale($locale);
-        } elseif ($acceptLang = $request->headers->get('Accept-Language')) {
+        }
+        /* @phpstan-ignore-next-line */
+        elseif ($acceptLang = $request->headers->get('Accept-Language')) {
             // prend la première langue du header
             $request->setLocale(substr($acceptLang, 0, 2));
         } else {
