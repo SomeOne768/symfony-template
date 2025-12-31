@@ -108,7 +108,7 @@ jobs:
           mysql -h 127.0.0.1 -u root -proot -e "DROP DATABASE IF EXISTS symfony_test;"
           mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE symfony_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
           php service-app/bin/console doctrine:migrations:migrate --env=test --no-interaction
-          mysql -h 127.0.0.1 -u root -proot symfony_test < service-app/data/fixtures/db.dump.sql
+          mysql -h 127.0.0.1 -u root -proot symfony_test < data/fixtures/db.dump.sql
 
       - name: Validate Doctrine schema
         run: php bin/console doctrine:schema:validate --env=test
