@@ -12,18 +12,23 @@ Template Symfony 7.4 avec Docker, PHP 8.3 et outils de qualité.
 ```bash
 cp service-app/.env.dist service-app/.env
 make init
+make vendor
 ```
 
 
 ## Commandes utiles
 
 ```bash
-make fix        # PHP-CS-Fixer
-make phpstan    # PHPStan
-make rector     # Rector
-make twigcs     # TwigCS
-make arkitect   # PHPArkitect
-make qa         # Full QA pipeline
-make composer cmd="require package"
-make npm cmd="install"
+make php-cs-fixer    # PHP-CS-Fixer
+make phpstan         # PHPStan
+make rector          # Rector
+make twigcs          # TwigCS
+make arkitect        # PHPArkitect
+make qa-core         # Full QA pipeline
 ```
+
+# TODO
+
+- add renovate
+- clean makefile
+- clean .env and dist files
