@@ -103,3 +103,15 @@ dump-load-test: wait-mysql db-test-drop db-test-create db-test-migrate
 	@echo "$(YELLOW)Loading dump into TEST database...$(RESET)"
 	$(MYSQL_EXEC) mysql -u root -proot $(DB_TEST_NAME) < $(DUMP_FILE)
 	@echo "$(GREEN)TEST database loaded$(RESET)"
+
+ifeq ($(CI),true)
+dump-load-test: db-test-create db-test-migrate
+	@echo "$(YELLOW)Loading dump into TEST database...$(RESET)"
+	$(MYSQL_EXEC) mysql -u root -proot $(DB_TEST_NAME) < $(DUMP_FILE)
+	@echo "$(GREEN)TEST database loaded$(RESET)"
+else
+dump-load-test: wait-mysql db-test-drop db-test-create db-test-migrate
+	@echo "$(YELLOW)Loading dump into TEST database...$(RESET)"
+	$(MYSQL_EXEC) mysql -u root -proot $(DB_TEST_NAME) < $(DUMP_FILE)
+	@echo "$(GREEN)TEST database loaded$(RESET)"
+endif
