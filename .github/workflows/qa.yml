@@ -100,7 +100,7 @@ jobs:
       - name: Prepare TEST database
         run: |
           php bin/console doctrine:database:create --env=test --if-not-exists
-          mysql -h $DATABASE_HOST -u $DATABASE_USER -p$DATABASE_PASSWORD $DATABASE_NAME < ../data/fixtures/db.dump.sql
+          mysql -h $DATABASE_HOST -u $DATABASE_USER -p$DATABASE_PASSWORD ${DATABASE_NAME}_test < ../data/fixtures/db.dump.sql
         working-directory: service-app
 
       - name: Validate Doctrine schema
