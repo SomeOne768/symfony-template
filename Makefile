@@ -1,15 +1,38 @@
-# Include database Makefile
 -include Makefile.database.mk
 
 #################################
 # Phony targets
 #################################
-.PHONY: all init composer npm fix phpstan rector twigcs arkitect qa assets-dev assets-watch db migrate test up down restart build logs bash vendor
+.PHONY: all init pull composer npm fix phpstan rector twigcs arkitect qa assets-dev assets-watch db migrate test up down restart build logs bash vendor
 
 #################################
 # Initialization
 #################################
-init: composer npm create-db migrate yarn
+init: pull build up composer npm create-db migrate yarn
+
+#################################
+# Docker compose management
+#################################
+pull:
+	docker compose pull
+
+build:
+	docker compose build
+
+start:
+	docker compose up -d
+
+up:
+	docker compose up -d --force-recreate --remove-orphans
+
+down:
+	docker compose down
+
+restart: down up
+
+logs:
+	docker compose logs -f
+
 
 #################################
 # Composer & NPM commands
@@ -24,33 +47,13 @@ npm:
 # Yarn / Node commands
 #################################
 yarn:
-	docker compose exec node npm run dev
+	docker compose exec node yarn install
 
 yarn-dev:
 	docker compose exec node yarn dev
 
 yarn-watch:
 	docker compose exec node yarn watch
-
-#################################
-# Docker compose management
-#################################
-up:
-	docker compose up -d --force-recreate --remove-orphans
-
-down:
-	docker compose down
-
-restart: down up
-
-build:
-	docker compose build
-
-logs:
-	docker compose logs -f
-
-bash:
-	docker compose exec php bash
 
 #################################
 # Symfony / Quality tools
