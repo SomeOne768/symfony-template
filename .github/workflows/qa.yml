@@ -62,7 +62,12 @@ jobs:
           MYSQL_PASSWORD: symfony
           MYSQL_RANDOM_ROOT_PASSWORD: yes
           MYSQL_ROOT_PASSWORD: root
+          DATABASE_NAME: symfony
+          DATABASE_USER: symfony
+          DATABASE_PASSWORD: symfony
           DATABASE_HOST: 127.0.0.1
+          DATABASE_URL: mysql://root:root@127.0.0.1:3306/symfony_test
+
           CI: true
         ports:
           - 3306:3306
