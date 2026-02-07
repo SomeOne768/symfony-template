@@ -48,6 +48,7 @@ jobs:
         working-directory: service-app
 
   tests:
+    timeout-minutes: 15
     name: Tests
     runs-on: ubuntu-latest
     needs: code-quality
@@ -89,8 +90,11 @@ jobs:
 
       - name: Prepare TEST database
         run: |
-          make db-test-reset
-          mysql -h mysql -u root -proot symfony_test < data/fixtures/db.dump.sql
+          mysql -hmysql -uroot -proot -e "DROP DATABASE IF EXISTS symfony_test;"
+          mysql -hmysql -uroot -proot -e "CREATE DATABASE symfony_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+          php service-app/bin/console doctrine:migrations:migrate --env=test --no-interaction
+          mysql -hmysql -uroot -proot symfony_test < data/fixtures/db.dump.sql
+        working-directory: service-app
 
       - name: Validate Doctrine schema
         run: php bin/console doctrine:schema:validate --env=test

@@ -8,14 +8,8 @@ RESET := \033[0m
 #################################
 # Docker
 #################################
-
-ifeq ($(CI),true)
-MYSQL_EXEC := mysql -h 127.0.0.1 -u root -proot
-PHP_EXEC := php
-else
 MYSQL_EXEC := docker compose exec -T mysql
 PHP_EXEC := docker compose exec php
-endif
 
 #################################
 # Databases
