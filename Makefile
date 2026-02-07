@@ -10,7 +10,7 @@
 #################################
 # Initialization
 #################################
-init: pull build up vendor yarn db-create db-migrate
+init: pull build up vendor yarn db-create dump-load
 
 #################################
 # Docker compose management
