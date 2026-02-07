@@ -61,6 +61,7 @@ jobs:
           MYSQL_PASSWORD: symfony
           MYSQL_RANDOM_ROOT_PASSWORD: yes
           MYSQL_ROOT_PASSWORD: root
+          DATABASE_HOST: 127.0.0.1
         ports:
           - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
@@ -90,9 +91,8 @@ jobs:
 
       - name: Prepare TEST database
         run: |
-          mysql -hmysql -uroot -proot -e "DROP DATABASE IF EXISTS symfony_test;"
-          mysql -hmysql -uroot -proot -e "CREATE DATABASE symfony_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-          php service-app/bin/console doctrine:migrations:migrate --env=test --no-interaction
+          make db-test-create 
+          make db-test-migrate
           mysql -hmysql -uroot -proot symfony_test < data/fixtures/db.dump.sql
         working-directory: service-app
 
