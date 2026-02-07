@@ -32,21 +32,21 @@ jobs:
         run: npm install
         working-directory: service-app
 
-#      - name: Run PHP-CS-Fixer
-#        run: php vendor/bin/php-cs-fixer fix --dry-run --diff
-#        working-directory: service-app
-#
-#      - name: Run PHPStan
-#        run: php vendor/bin/phpstan analyse
-#        working-directory: service-app
-#
-#      - name: Run Rector
-#        run: php vendor/bin/rector process src --dry-run
-#        working-directory: service-app
-#
-#      - name: Run TwigCS
-#        run: php vendor/bin/twigcs templates
-#        working-directory: service-app
+      - name: Run PHP-CS-Fixer
+        run: php vendor/bin/php-cs-fixer fix --dry-run --diff
+        working-directory: service-app
+
+      - name: Run PHPStan
+        run: php vendor/bin/phpstan analyse
+        working-directory: service-app
+
+      - name: Run Rector
+        run: php vendor/bin/rector process src --dry-run
+        working-directory: service-app
+
+      - name: Run TwigCS
+        run: php vendor/bin/twigcs templates
+        working-directory: service-app
 
   tests:
     timeout-minutes: 5
