@@ -1,4 +1,5 @@
 -include Makefile.database.mk
+-include Makefile.git.mk
 
 #################################
 # Phony targets
