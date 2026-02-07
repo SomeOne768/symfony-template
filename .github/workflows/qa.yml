@@ -93,10 +93,8 @@ jobs:
 
       - name: Prepare TEST database
         run: |
-          make db-test-create 
-          make db-test-migrate
-          mysql -hmysql -uroot -proot symfony_test < data/fixtures/db.dump.sql
-        working-directory: service-app
+          make db-test-reset
+          make dump-load-test
 
       - name: Validate Doctrine schema
         run: php bin/console doctrine:schema:validate --env=test
