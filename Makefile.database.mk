@@ -51,7 +51,7 @@ endif
 #################################
 # Doctrine DEV
 #################################
-.PHONY: db-drop db-create db-migrate db-reset
+.PHONY: db-drop db-create db-make-migration db-migrate db-reset
 
 db-drop: wait-mysql
 	$(PHP_EXEC) php bin/console doctrine:database:drop --if-exists --force
@@ -59,10 +59,13 @@ db-drop: wait-mysql
 db-create: wait-mysql
 	$(PHP_EXEC) php bin/console doctrine:database:create --if-not-exists
 
+db-make-migration: wait-mysql
+	$(PHP_EXEC) php bin/console make:migration --no-interaction
+
 db-migrate:
 	$(PHP_EXEC) php bin/console doctrine:migrations:migrate --no-interaction
 
-db-reset: db-drop db-create db-migrate
+db-reset: db-drop db-create db-make-migration db-migrate # Require to delete all previous migrations
 
 
 #################################
