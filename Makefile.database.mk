@@ -44,10 +44,6 @@ else
 endif
 	@echo "$(GREEN)MySQL is up$(RESET)"
 
-
-
-
-
 #################################
 # Doctrine DEV
 #################################
@@ -65,7 +61,7 @@ db-make-migration: wait-mysql
 db-migrate:
 	$(PHP_EXEC) php bin/console doctrine:migrations:migrate --no-interaction
 
-db-reset: db-drop db-create db-make-migration db-migrate # Require to delete all previous migrations
+db-reset: db-drop db-create dump-load
 
 
 #################################
@@ -82,7 +78,7 @@ db-test-create: wait-mysql
 db-test-migrate:
 	$(PHP_EXEC) php bin/console doctrine:migrations:migrate --env=test --no-interaction
 
-db-test-reset: db-test-drop db-test-create db-test-migrate
+db-test-reset: db-test-drop db-test-create dump-load-test
 
 
 #################################
