@@ -103,5 +103,5 @@ Other way, change the entry port for nginx in the docker-compose.yml file
     container_name: symfony_nginx
     ports:
       - "443:443" # probably not necessary in local but you can also update this one
-      - "80:80" -> "8080:80"
+      - "80:80" -> "8080:80" 
 ```
