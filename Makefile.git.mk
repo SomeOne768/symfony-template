@@ -10,4 +10,4 @@ fetch-template-update:
 
 
 merge-template-update:
-	git merge template/main
+	git merge template/main --allow-unrelated-histories
