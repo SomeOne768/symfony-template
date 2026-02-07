@@ -55,18 +55,14 @@ jobs:
       mysql:
         image: mysql:8.0
         env:
-          MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: symfony
           MYSQL_USER: symfony
           MYSQL_PASSWORD: symfony
-          CI: true
+          MYSQL_RANDOM_ROOT_PASSWORD: yes
+          MYSQL_ROOT_PASSWORD: root
         ports:
           - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping -uroot -proot --silent"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=10
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
       - name: Checkout
@@ -91,23 +87,9 @@ jobs:
         run: yarn install && yarn dev
         working-directory: service-app
 
-      - name: Wait for MySQL to be ready
-        run: |
-          for i in {1..30}; do
-            if mysqladmin ping -h mysql -uroot -proot --silent; then
-              echo "MySQL is up"
-              break
-            fi
-            echo "Waiting for MySQL..."
-            sleep 2
-          done
-        working-directory: service-app
-
       - name: Prepare TEST database
         run: |
-          mysql -h mysql -u root -proot -e "DROP DATABASE IF EXISTS symfony_test;"
-          mysql -h mysql -u root -proot -e "CREATE DATABASE symfony_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-          php service-app/bin/console doctrine:migrations:migrate --env=test --no-interaction
+          make db-test-reset
           mysql -h mysql -u root -proot symfony_test < data/fixtures/db.dump.sql
 
       - name: Validate Doctrine schema
