@@ -1,5 +1,6 @@
 -include Makefile.database.mk
 -include Makefile.git.mk
+-include Makefile.extra.mk
 
 #################################
 # Phony targets
@@ -9,7 +10,7 @@
 #################################
 # Initialization
 #################################
-init: pull build up composer npm create-db migrate yarn
+init: pull build up vendor yarn db-create db-migrate
 
 #################################
 # Docker compose management
@@ -59,8 +60,6 @@ yarn-watch:
 #################################
 # Symfony / Quality tools
 #################################
-cache:
-	docker compose exec php php bin/console cache:clear
 
 phpstan:
 	docker compose exec php vendor/bin/phpstan analyse --memory-limit=2G #-1

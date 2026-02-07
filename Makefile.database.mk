@@ -10,11 +10,11 @@ RESET := \033[0m
 #################################
 
 ifeq ($(CI),true)
-MYSQL_EXEC := mysql -h 127.0.0.1 -u root -proot
-PHP_EXEC := php
+  PHP_EXEC := php
+  MYSQL_EXEC := mysql -h 127.0.0.1 -uroot -proot
 else
-MYSQL_EXEC := docker compose exec -T mysql
-PHP_EXEC := docker compose exec php
+  PHP_EXEC := docker compose exec php
+  MYSQL_EXEC := docker compose exec -T mysql
 endif
 
 #################################
@@ -51,7 +51,7 @@ endif
 #################################
 # Doctrine DEV
 #################################
-.PHONY: db-drop db-create db-migrate db-reset
+.PHONY: db-drop db-create db-make-migration db-migrate db-reset
 
 db-drop: wait-mysql
 	$(PHP_EXEC) php bin/console doctrine:database:drop --if-exists --force
@@ -59,10 +59,13 @@ db-drop: wait-mysql
 db-create: wait-mysql
 	$(PHP_EXEC) php bin/console doctrine:database:create --if-not-exists
 
+db-make-migration: wait-mysql
+	$(PHP_EXEC) php bin/console make:migration --no-interaction
+
 db-migrate:
 	$(PHP_EXEC) php bin/console doctrine:migrations:migrate --no-interaction
 
-db-reset: db-drop db-create db-migrate
+db-reset: db-drop db-create db-make-migration db-migrate # Require to delete all previous migrations
 
 
 #################################
