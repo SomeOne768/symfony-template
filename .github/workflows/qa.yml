@@ -100,6 +100,7 @@ jobs:
       - name: Prepare TEST database
         run: |
           php bin/console doctrine:database:create --env=test --if-not-exists
+          php bin/console doctrine:migrations:migrate --env=test --no-interaction
           mysql -h $DATABASE_HOST -u $DATABASE_USER -p$DATABASE_PASSWORD ${DATABASE_NAME}_test < ../data/fixtures/db.dump.sql
         working-directory: service-app
 
