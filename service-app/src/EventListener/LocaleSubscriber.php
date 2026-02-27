@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // src/EventSubscriber/LocaleSubscriber.php
 
 namespace App\EventListener;
@@ -8,13 +10,12 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
-class LocaleSubscriber implements EventSubscriberInterface
-{
-    private string $defaultLocale;
+use function substr;
 
-    public function __construct(string $defaultLocale = 'fr')
+final readonly class LocaleSubscriber implements EventSubscriberInterface
+{
+    public function __construct(private string $defaultLocale = 'fr')
     {
-        $this->defaultLocale = $defaultLocale;
     }
 
     public function onKernelRequest(RequestEvent $event): void

@@ -68,10 +68,16 @@ twigcs:
 	docker compose exec php vendor/bin/twigcs templates
 
 rector:
+	docker compose exec php vendor/bin/rector process src
+
+rector-dry:
 	docker compose exec php vendor/bin/rector process src --dry-run
 
 php-cs-fixer:
-	docker compose exec php php vendor/bin/php-cs-fixer fix
+	docker compose exec php php vendor/bin/php-cs-fixer fix --allow-risky=yes
+
+php-cs-fixer-dry:
+	docker compose exec php php vendor/bin/php-cs-fixer fix --allow-risky=yes --dry-run --diff
 
 arkitect:
 	docker compose exec php php vendor/bin/phparkitect check
