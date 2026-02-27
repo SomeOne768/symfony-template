@@ -48,6 +48,10 @@ jobs:
         run: php vendor/bin/twigcs templates
         working-directory: service-app
 
+      - name: Run PhpArkitect
+        run: php vendor/bin/phparkitect check
+        working-directory: service-app
+
   tests:
     timeout-minutes: 5
     name: Tests
