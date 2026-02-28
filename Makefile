@@ -79,13 +79,13 @@ rector-dry:
 	$(PHP_EXEC) vendor/bin/rector process src --dry-run
 
 php-cs-fixer:
-	$(PHP_EXEC) php vendor/bin/php-cs-fixer fix --allow-risky=yes
+	$(PHP_EXEC) vendor/bin/php-cs-fixer fix --allow-risky=yes
 
 php-cs-fixer-dry:
-	$(PHP_EXEC) php vendor/bin/php-cs-fixer fix --allow-risky=yes --dry-run --diff
+	$(PHP_EXEC) vendor/bin/php-cs-fixer fix --allow-risky=yes --dry-run --diff
 
 php-arkitect:
-	$(PHP_EXEC) php vendor/bin/phparkitect check
+	$(PHP_EXEC) vendor/bin/phparkitect check
 
 vendor:
 	$(PHP_EXEC) composer install --prefer-dist --no-interaction
