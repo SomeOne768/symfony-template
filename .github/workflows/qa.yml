@@ -22,8 +22,16 @@ jobs:
           php-version: 8.4
           extensions: mbstring, intl, pdo_mysql, xml
 
+
+      - name: Debug repo
+        run: |
+          pwd
+          ls -la
+          ls -la service-app
+
       - name: Install Dependencies
         run: make vendor
+        working-directory: service-app
 
       - name: Run Quality Tools
         run: make qa-core
