@@ -51,6 +51,7 @@ jobs:
 
       - name: Install Dependencies
         run: make vendor
+        working-directory: service-app
 
       - name: Prepare Database
         run: make db-test-reset
