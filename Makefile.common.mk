@@ -1,20 +1,20 @@
 SHELL = /bin/sh
 
-DOCKER					= docker
-DOCKER_COMPOSE				= docker compose
-DOCKER_COMPOSE_CI			= docker compose -f docker-compose.yml -f docker-compose.ci.yml
-DOCKER_COMPOSE_EXEC			= $(DOCKER_COMPOSE) exec
-DOCKER_COMPOSE_RUN			= $(DOCKER_COMPOSE) run --rm --remove-orphans
-DOCKER_COMPOSE_EXEC_PHP		= $(DOCKER_COMPOSE_EXEC) php
-DOCKER_COMPOSE_EXEC_PHP_CONSOLE	= $(DOCKER_COMPOSE_EXEC_PHP) bin/console
-YARN					= $(DOCKER_COMPOSE) run --rm -u root node yarn
+DOCKER                  = docker
+DOCKER_COMPOSE          = docker compose
+DOCKER_COMPOSE_CI       = docker compose -f docker-compose.yml -f docker-compose.ci.yml
+DOCKER_COMPOSE_EXEC     = $(DOCKER_COMPOSE) exec
+DOCKER_COMPOSE_RUN      = $(DOCKER_COMPOSE) run --rm --remove-orphans
+DOCKER_COMPOSE_EXEC_PHP = $(DOCKER_COMPOSE_EXEC) php
+DOCKER_COMPOSE_EXEC_PHP_CONSOLE = $(DOCKER_COMPOSE_EXEC_PHP) bin/console
+YARN                    = $(DOCKER_COMPOSE) run --rm -u root node yarn
 
-CONTAINERS_LIST						= "php"
-# below is the prefix for each service directory being mounted on the yarn container
-NODE_DIR_PATH_PREFIX                = /project/service-
-NODE_CONTAINERS_RELATED_LIST_PATH	= $(NODE_DIR_PATH_PREFIX)app
+CONTAINERS_LIST = "php"
 
-NEW_DOCKER_COMPOSE_ENABLED			:= $(shell which docker compose)
+NODE_DIR_PATH_PREFIX = /project/service-
+NODE_CONTAINERS_RELATED_LIST_PATH = $(NODE_DIR_PATH_PREFIX)app
+
+NEW_DOCKER_COMPOSE_ENABLED := $(shell which docker compose)
 
 define call_service_make
     $(MAKE) $(foreach container, $(CONTAINERS_LIST), $1-$(container))
@@ -58,7 +58,6 @@ ifdef NEW_DOCKER_COMPOSE_ENABLED
 	DOCKER_COMPOSE = docker compose
 endif
 
-
 ifndef CI_JOB_ID
 	GREEN  := $(shell tput -Txterm setaf 2)
 	YELLOW := $(shell tput -Txterm setaf 3)
@@ -70,4 +69,18 @@ endif
 ifdef CI_JOB_ID
 	DOCKER_COMPOSE      = $(DOCKER_COMPOSE_CI)
 	DOCKER_COMPOSE_EXEC = $(DOCKER_COMPOSE) exec -T
+endif
+
+#################################
+# Runtime abstraction (Docker vs CI)
+#################################
+
+ifeq ($(CI),true)
+  PHP_EXEC := php
+  NPM_EXEC := npm
+  YARN_EXEC := yarn
+else
+  PHP_EXEC := $(DOCKER_COMPOSE_EXEC_PHP)
+  NPM_EXEC := $(DOCKER_COMPOSE_EXEC) node npm
+  YARN_EXEC := $(YARN)
 endif
