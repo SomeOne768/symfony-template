@@ -1,6 +1,6 @@
 # Symfony Template
 
-Template Symfony 7.4 avec Docker, PHP 8.3 et outils de qualité.
+Template Symfony 7.4 avec Docker, PHP 8.4 et outils de qualité.
 
 ## Structure
 

@@ -1,17 +1,16 @@
 SHELL = /bin/sh
 
 DOCKER                  = docker
-DOCKER_COMPOSE          = docker compose
-DOCKER_COMPOSE_CI       = docker compose -f docker-compose.yml -f docker-compose.ci.yml
-DOCKER_COMPOSE_EXEC     = $(DOCKER_COMPOSE) exec
-DOCKER_COMPOSE_RUN      = $(DOCKER_COMPOSE) run --rm --remove-orphans
-DOCKER_COMPOSE_EXEC_PHP = $(DOCKER_COMPOSE_EXEC) php
+DOCKER_COMPOSE           = docker compose
+DOCKER_COMPOSE_CI        = docker compose -f docker-compose.yml -f docker-compose.ci.yml
+DOCKER_COMPOSE_EXEC      = $(DOCKER_COMPOSE) exec
+DOCKER_COMPOSE_RUN       = $(DOCKER_COMPOSE) run --rm --remove-orphans
+DOCKER_COMPOSE_EXEC_PHP  = $(DOCKER_COMPOSE_EXEC) php
 DOCKER_COMPOSE_EXEC_PHP_CONSOLE = $(DOCKER_COMPOSE_EXEC_PHP) bin/console
-YARN                    = $(DOCKER_COMPOSE) run --rm -u root node yarn
+YARN                     = $(DOCKER_COMPOSE) run --rm -u root node yarn
 
-CONTAINERS_LIST = "php"
-
-NODE_DIR_PATH_PREFIX = /project/service-
+CONTAINERS_LIST                   = "php"
+NODE_DIR_PATH_PREFIX               = /project/service-
 NODE_CONTAINERS_RELATED_LIST_PATH = $(NODE_DIR_PATH_PREFIX)app
 
 NEW_DOCKER_COMPOSE_ENABLED := $(shell which docker compose)
@@ -72,15 +71,20 @@ ifdef CI_JOB_ID
 endif
 
 #################################
-# Runtime abstraction (Docker vs CI)
+# Runtime abstraction (Docker vs CI / local)
 #################################
 
-ifeq ($(CI),true)
-  PHP_EXEC := php
-  NPM_EXEC := npm
+# Local PHP / NPM / Yarn
+PHP_EXEC  ?= php
+NPM_EXEC  ?= npm
+YARN_EXEC ?= yarn
+
+# CI override (GitHub Actions / GitLab CI)
+ifdef CI
+  PHP_EXEC  := php
+  NPM_EXEC  := npm
   YARN_EXEC := yarn
-else
-  PHP_EXEC := $(DOCKER_COMPOSE_EXEC_PHP)
-  NPM_EXEC := $(DOCKER_COMPOSE_EXEC) node npm
-  YARN_EXEC := $(YARN)
 endif
+
+# Optional project directory if needed
+PROJECT_DIR ?= service-app

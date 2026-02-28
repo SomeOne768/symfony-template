@@ -12,7 +12,6 @@ init: pull build up vendor yarn db-create dump-load
 # Docker compose management
 #################################
 .PHONY: pull build start up down restart logs
-
 pull:
 	$(DOCKER_COMPOSE) pull
 
@@ -37,7 +36,6 @@ restart: down up
 # Composer & NPM commands
 #################################
 .PHONY: composer npm
-
 composer:
 	$(PHP_EXEC) composer $(cmd)
 
@@ -48,7 +46,6 @@ npm:
 # Yarn / Node commands
 #################################
 .PHONY: yarn yarn-dev yarn-watch yarn-add
-
 yarn:
 	$(YARN_EXEC) install
 
@@ -65,7 +62,6 @@ yarn-add:
 # Symfony / Quality tools
 #################################
 .PHONY: phpstan twigcs rector rector-dry php-cs-fixer php-cs-fixer-dry php-arkitect vendor
-
 phpstan:
 	$(PHP_EXEC) vendor/bin/phpstan analyse --memory-limit=2G
 
@@ -88,7 +84,7 @@ php-arkitect:
 	$(PHP_EXEC) vendor/bin/phparkitect check
 
 vendor:
-	$(COMPOSER_EXEC) composer install --prefer-dist --no-interaction
+	$(PHP_EXEC) composer install --prefer-dist --no-interaction
 	$(NPM_EXEC) install
 	$(YARN_EXEC) dev
 
@@ -96,21 +92,19 @@ vendor:
 # Tests
 #################################
 .PHONY: phpunit phpunit-functional behat
-
 phpunit:
-	$(PHP_EXEC) php bin/phpunit --colors=always
+	$(PHP_EXEC) bin/phpunit --colors=always
 
 phpunit-functional:
-	$(PHP_EXEC) php bin/phpunit --colors=always --group functional
+	$(PHP_EXEC) bin/phpunit --colors=always --group functional
 
 behat:
-	$(PHP_EXEC) php vendor/bin/behat --config=behat.yml --format=progress --strict
+	$(PHP_EXEC) vendor/bin/behat --config=behat.yml --format=progress --strict
 
 #################################
 # QA / Code quality
 #################################
 .PHONY: qa-core qa-test qa-full
-
 qa-core: php-cs-fixer rector phpstan php-arkitect twigcs
 
 qa-test: phpunit phpunit-functional behat
