@@ -9,7 +9,7 @@ on:
 jobs:
 
   code-quality:
-    timeout-minutes: 5
+    timeout-minutes: 5 # TODO: To increase if necessary
     name: Code Quality
     runs-on: ubuntu-latest
 
