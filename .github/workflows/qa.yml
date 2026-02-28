@@ -33,7 +33,7 @@ jobs:
         working-directory: service-app
 
       - name: Run PHP-CS-Fixer
-        run: php vendor/bin/php-cs-fixer fix --dry-run --diff
+        run: php vendor/bin/php-cs-fixer fix --dry-run --diff --allow-risky=yes
         working-directory: service-app
 
       - name: Run PHPStan
