@@ -9,7 +9,7 @@ on:
 jobs:
 
   code-quality:
-    timeout-minutes: 5
+    timeout-minutes: 5 # TODO: To increase if necessary
     name: Code Quality
     runs-on: ubuntu-latest
 
@@ -20,7 +20,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 8.3
+          php-version: 8.4
           extensions: mbstring, intl, pdo_mysql, xml
           coverage: none
 
@@ -33,7 +33,7 @@ jobs:
         working-directory: service-app
 
       - name: Run PHP-CS-Fixer
-        run: php vendor/bin/php-cs-fixer fix --dry-run --diff
+        run: php vendor/bin/php-cs-fixer fix --dry-run --diff --allow-risky=yes
         working-directory: service-app
 
       - name: Run PHPStan
@@ -46,6 +46,10 @@ jobs:
 
       - name: Run TwigCS
         run: php vendor/bin/twigcs templates
+        working-directory: service-app
+
+      - name: Run PhpArkitect
+        run: php vendor/bin/phparkitect check
         working-directory: service-app
 
   tests:
@@ -81,7 +85,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 8.3
+          php-version: 8.4
           extensions: mbstring, intl, pdo_mysql, xml
           coverage: none
 

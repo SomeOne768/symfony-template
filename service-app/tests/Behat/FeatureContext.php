@@ -9,9 +9,32 @@ use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ElementHtmlException;
 use Behat\Mink\Session;
 use Behat\Mink\WebAssert;
+use Exception;
 use PHPUnit\Framework\Assert;
+use RuntimeException;
+use SimpleXMLElement;
 
+use function array_filter;
+use function array_map;
+use function array_walk_recursive;
+use function count;
+use function explode;
+use function htmlspecialchars_decode;
+use function implode;
+use function in_array;
+use function is_array;
+use function is_string;
+use function json_decode;
+use function preg_match;
+use function preg_quote;
+use function preg_replace;
+use function sprintf;
+use function str_getcsv;
+use function str_replace;
+use function strtolower;
 use function trim;
+
+use const PHP_EOL;
 
 final readonly class FeatureContext implements Context
 {
@@ -29,17 +52,17 @@ final readonly class FeatureContext implements Context
         $actual = (string) $element->getAttribute($attribute);
 
         // decode html entities in value
-        $value = \htmlspecialchars_decode($value);
+        $value = htmlspecialchars_decode($value);
         // trim spaces and \n
-        $actual = \preg_replace('/\s{2,}|\n+/', '', \htmlspecialchars_decode($actual)) ?? '';
+        $actual = preg_replace('/\s{2,}|\n+/', '', htmlspecialchars_decode($actual)) ?? '';
 
-        $regex = '/'.\preg_quote($value, '/').'/ui';
+        $regex = '/'.preg_quote($value, '/').'/ui';
 
-        if (true === (bool) \preg_match($regex, $actual)) {
+        if (true === (bool) preg_match($regex, $actual)) {
             return;
         }
 
-        throw new ElementHtmlException(\sprintf('The text "%s" was not found in the attribute "%s" of the %s. Found "%s" instead.', $value, $attribute, $selector, $actual), $this->session->getDriver(), $element);
+        throw new ElementHtmlException(sprintf('The text "%s" was not found in the attribute "%s" of the %s. Found "%s" instead.', $value, $attribute, $selector, $actual), $this->session->getDriver(), $element);
     }
 
     /**
@@ -53,7 +76,7 @@ final readonly class FeatureContext implements Context
         $node = $page->find('css', $selector);
 
         if ($node instanceof NodeElement && '' !== (string) $node->getAttribute($attribute)) {
-            throw new \RuntimeException(\sprintf('The "%s" attribute of the "%s" element was not empty.', $attribute, $selector));
+            throw new RuntimeException(sprintf('The "%s" attribute of the "%s" element was not empty.', $attribute, $selector));
         }
     }
 
@@ -64,20 +87,20 @@ final readonly class FeatureContext implements Context
     {
         $page = $this->session->getPage();
         $nodes = $page->findAll('css', $selector);
-        $regex = '/'.\preg_quote($value, '/').'/ui';
+        $regex = '/'.preg_quote($value, '/').'/ui';
         $foundList = '';
         if ([] === $nodes) {
-            throw new \RuntimeException(\sprintf('No element "%s" was found in the HTML.', $selector));
+            throw new RuntimeException(sprintf('No element "%s" was found in the HTML.', $selector));
         }
 
         foreach ($nodes as $node) {
-            if ((bool) \preg_match($regex, (string) $node->getAttribute($attribute))) {
+            if ((bool) preg_match($regex, (string) $node->getAttribute($attribute))) {
                 return;
             }
             $foundList .= $node->getAttribute($attribute)."\n";
         }
 
-        throw new \RuntimeException(\sprintf("The text \"%s\" was not found in the attribute \"%s\" of \"%s\", found: \n %s \n instead.", $value, $attribute, $selector, $foundList));
+        throw new RuntimeException(sprintf("The text \"%s\" was not found in the attribute \"%s\" of \"%s\", found: \n %s \n instead.", $value, $attribute, $selector, $foundList));
     }
 
     /**
@@ -87,11 +110,11 @@ final readonly class FeatureContext implements Context
     {
         $page = $this->session->getPage();
         $nodes = $page->findAll('css', $selector);
-        $regex = '/'.\preg_quote($value, '/').'/ui';
+        $regex = '/'.preg_quote($value, '/').'/ui';
 
         foreach ($nodes as $index => $node) {
-            if (!(bool) \preg_match($regex, (string) $node->getAttribute($attribute))) {
-                throw new \RuntimeException(\sprintf('The text "%s" was not found in the attribute "%s" of any "%s" element.', $value, $attribute, $selector));
+            if (!(bool) preg_match($regex, (string) $node->getAttribute($attribute))) {
+                throw new RuntimeException(sprintf('The text "%s" was not found in the attribute "%s" of any "%s" element.', $value, $attribute, $selector));
             }
         }
     }
@@ -107,16 +130,16 @@ final readonly class FeatureContext implements Context
     {
         $page = $this->session->getPage();
         $nodes = $page->findAll('css', $element);
-        $html = \str_replace('\\"', '"', $value);
-        $regex = '/'.\preg_quote($html, '/').'/ui';
+        $html = str_replace('\\"', '"', $value);
+        $regex = '/'.preg_quote($html, '/').'/ui';
 
         foreach ($nodes as $node) {
-            if ((bool) \preg_match($regex, $node->getHtml())) {
+            if ((bool) preg_match($regex, $node->getHtml())) {
                 return;
             }
         }
 
-        throw new \RuntimeException(\sprintf('The string "%s" was not found in the HTML of "%s".', $html, $element));
+        throw new RuntimeException(sprintf('The string "%s" was not found in the HTML of "%s".', $html, $element));
     }
 
     /**
@@ -128,16 +151,16 @@ final readonly class FeatureContext implements Context
     {
         $page = $this->session->getPage();
         $nodes = $page->findAll('css', $element);
-        $html = \str_replace('\\"', '"', $value);
-        $regex = '/'.\preg_quote($html, '/').'/ui';
+        $html = str_replace('\\"', '"', $value);
+        $regex = '/'.preg_quote($html, '/').'/ui';
 
-        if (0 === \count($nodes)) {
-            throw new \RuntimeException(\sprintf('No element "%s" was found in the HTML.', $element));
+        if (0 === count($nodes)) {
+            throw new RuntimeException(sprintf('No element "%s" was found in the HTML.', $element));
         }
 
         foreach ($nodes as $node) {
-            if (!(bool) \preg_match($regex, $node->getHtml())) {
-                throw new \RuntimeException(\sprintf('The string "%s" was not found in the HTML of "%s".', $html, $element));
+            if (!(bool) preg_match($regex, $node->getHtml())) {
+                throw new RuntimeException(sprintf('The string "%s" was not found in the HTML of "%s".', $html, $element));
             }
         }
     }
@@ -151,16 +174,16 @@ final readonly class FeatureContext implements Context
     {
         $page = $this->session->getPage();
         $nodes = $page->findAll('css', $element);
-        if (0 === \count($nodes)) {
-            throw new \RuntimeException(\sprintf('No element "%s" was found in the HTML.', $element));
+        if (0 === count($nodes)) {
+            throw new RuntimeException(sprintf('No element "%s" was found in the HTML.', $element));
         }
 
-        $html = \str_replace('\\"', '"', $value);
-        $regex = '/'.\preg_quote($html, '/').'/ui';
+        $html = str_replace('\\"', '"', $value);
+        $regex = '/'.preg_quote($html, '/').'/ui';
 
         foreach ($nodes as $node) {
-            if (0 < \preg_match($regex, $node->getHtml())) {
-                throw new \RuntimeException(\sprintf('The string "%s" has been found in the HTML of "%s".', $html, $element));
+            if (0 < preg_match($regex, $node->getHtml())) {
+                throw new RuntimeException(sprintf('The string "%s" has been found in the HTML of "%s".', $html, $element));
             }
         }
     }
@@ -174,13 +197,13 @@ final readonly class FeatureContext implements Context
         $node = $page->find('css', $locator);
 
         if (!$node instanceof NodeElement) {
-            throw new \RuntimeException(\sprintf('The element "%s" was not found.', $locator));
+            throw new RuntimeException(sprintf('The element "%s" was not found.', $locator));
         }
 
         $actual = $node->getAttribute($attribute);
 
         if ($actual !== $value) {
-            throw new \RuntimeException(\sprintf('The element "%s" has the attribute "%s" with the value "%s", but should be "%s".', $locator, $attribute, $actual, $value));
+            throw new RuntimeException(sprintf('The element "%s" has the attribute "%s" with the value "%s", but should be "%s".', $locator, $attribute, $actual, $value));
         }
     }
 
@@ -189,14 +212,14 @@ final readonly class FeatureContext implements Context
      */
     public function iShouldSeeTheInputElementNamedInTheForm(string $name, string $formLocator): void
     {
-        $inputLocator = \sprintf('%s input[name="%s"]', $formLocator, $name);
+        $inputLocator = sprintf('%s input[name="%s"]', $formLocator, $name);
         $page = $this->session->getPage();
         $node = $page->find('css', $inputLocator);
 
         Assert::assertInstanceOf(
             NodeElement::class,
             $node,
-            \sprintf('The element "%s" was not found.', $inputLocator),
+            sprintf('The element "%s" was not found.', $inputLocator),
         );
     }
 
@@ -209,13 +232,13 @@ final readonly class FeatureContext implements Context
         $node = $page->find('css', $locator);
 
         if (!$node instanceof NodeElement) {
-            throw new \RuntimeException(\sprintf('The element "%s" was not found.', $locator));
+            throw new RuntimeException(sprintf('The element "%s" was not found.', $locator));
         }
 
         $actual = $node->getAttribute($attribute);
 
         if ($actual === $value) {
-            throw new \RuntimeException(\sprintf('The element "%s" has the attribute "%s" with the value "%s", but it should not be the case.', $locator, $attribute, $value));
+            throw new RuntimeException(sprintf('The element "%s" has the attribute "%s" with the value "%s", but it should not be the case.', $locator, $attribute, $value));
         }
     }
 
@@ -231,14 +254,14 @@ final readonly class FeatureContext implements Context
         $node = $page->find('css', $element);
 
         if (!$node instanceof NodeElement) {
-            throw new \RuntimeException(\sprintf('The element "%s" was not found.', $element));
+            throw new RuntimeException(sprintf('The element "%s" was not found.', $element));
         }
         $content = $node->getHtml();
-        if ((bool) \preg_match('/^\d+$/', $content)) {
+        if ((bool) preg_match('/^\d+$/', $content)) {
             return;
         }
 
-        throw new \RuntimeException(\sprintf('"%s" doesn\'t contain digits.', $element));
+        throw new RuntimeException(sprintf('"%s" doesn\'t contain digits.', $element));
     }
 
     /**
@@ -252,19 +275,19 @@ final readonly class FeatureContext implements Context
     /**
      * @Then /^The property "([^"]*)" should contain "([^"]*)" in XML response$/
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function thePropertyShouldContainInXmlResponse(string $property, string $value): void
     {
         $page = $this->session->getPage();
-        $xml = new \SimpleXMLElement($page->getContent());
+        $xml = new SimpleXMLElement($page->getContent());
 
         $res = $xml->xpath($property);
         if (null === $res || false === $res) {
-            throw new \RuntimeException(\sprintf('The response object does not have "%s" property.', $property));
+            throw new RuntimeException(sprintf('The response object does not have "%s" property.', $property));
         }
 
-        /** @var \SimpleXMLElement $xmlValue */
+        /** @var SimpleXMLElement $xmlValue */
         $xmlValue = $res[0];
         Assert::assertSame($value, (string) $xmlValue);
     }
@@ -272,12 +295,12 @@ final readonly class FeatureContext implements Context
     /**
      * @Then /^The "([^"]*)" namespace should point to "([^"]*)" in XML response$/
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function theNamespaceShouldPointToInXmlResponse(string $namespace, string $value): void
     {
         $page = $this->session->getPage();
-        $xml = new \SimpleXMLElement($page->getContent());
+        $xml = new SimpleXMLElement($page->getContent());
         $ns = $xml->getNamespaces(true);
         Assert::assertArrayHasKey($namespace, $ns);
         Assert::assertSame($value, $ns[$namespace]);
@@ -289,10 +312,10 @@ final readonly class FeatureContext implements Context
     public function JsonPropertyShouldNotExist(string $property): void
     {
         $page = $this->session->getPage();
-        $json = \json_decode($page->getContent(), true);
+        $json = json_decode($page->getContent(), true);
 
-        if (!\is_array($json)) {
-            throw new \RuntimeException('invalid Json');
+        if (!is_array($json)) {
+            throw new RuntimeException('invalid Json');
         }
 
         Assert::assertFalse(isset($json[$property]));
@@ -301,27 +324,27 @@ final readonly class FeatureContext implements Context
     /**
      * @Then /^one of the properties "([^"]*)" should contain "([^"]*)" in XML response$/
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function oneOfThePropertiesShouldContainInXmlResponse(string $property, string $value): void
     {
         $page = $this->session->getPage();
-        $xml = new \SimpleXMLElement($page->getContent());
+        $xml = new SimpleXMLElement($page->getContent());
 
         $properties = $xml->xpath($property);
         if (null === $properties || false === $properties) {
-            throw new \RuntimeException(\sprintf('The response object does not have "%s" property.', $property));
+            throw new RuntimeException(sprintf('The response object does not have "%s" property.', $property));
         }
 
         foreach ($properties as $p) {
-            if (!$p instanceof \SimpleXMLElement) {
+            if (!$p instanceof SimpleXMLElement) {
                 continue;
             }
             if ($value === (string) $p) {
                 return;
             }
         }
-        throw new \RuntimeException(\sprintf('The properties "%s" does not contain "%s" value.', $property, $value));
+        throw new RuntimeException(sprintf('The properties "%s" does not contain "%s" value.', $property, $value));
     }
 
     /**
@@ -330,14 +353,14 @@ final readonly class FeatureContext implements Context
     public function JsonPropertyShouldEquals(string $value, string $property): void
     {
         $page = $this->session->getPage();
-        $json = \json_decode($page->getContent(), true);
+        $json = json_decode($page->getContent(), true);
 
-        if (!\is_array($json)) {
-            throw new \RuntimeException('invalid Json');
+        if (!is_array($json)) {
+            throw new RuntimeException('invalid Json');
         }
 
         if (!isset($json[$property])) {
-            throw new \RuntimeException(\sprintf('the property %s was not found', $property));
+            throw new RuntimeException(sprintf('the property %s was not found', $property));
         }
 
         Assert::assertSame($value, $json[$property]);
@@ -349,14 +372,14 @@ final readonly class FeatureContext implements Context
     public function NestedJsonPropertyShouldEquals(string $value, string $property): void
     {
         $page = $this->session->getPage();
-        $json = \json_decode($page->getContent(), true);
+        $json = json_decode($page->getContent(), true);
 
-        if (!\is_array($json)) {
-            throw new \RuntimeException('invalid Json');
+        if (!is_array($json)) {
+            throw new RuntimeException('invalid Json');
         }
 
         $result = [];
-        \array_walk_recursive($json, static function ($v, $k) use ($property, &$result): void {
+        array_walk_recursive($json, static function ($v, $k) use ($property, &$result): void {
             if ($k === $property) {
                 $result[] = $v;
             }
@@ -378,13 +401,13 @@ final readonly class FeatureContext implements Context
     /**
      * @Then /^The path "([^"]*)" should contain "(.*)" in JSON response$/
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function thePathShouldContainInJsonResponse(string $path, string $value): void
     {
         $page = $this->session->getPage();
         /** @var array<string, string> $json */
-        $json = \json_decode($page->getContent(), true);
+        $json = json_decode($page->getContent(), true);
         $actualValue = self::walkJsonResponse($json, $path);
 
         Assert::assertNotEmpty($actualValue);
@@ -398,7 +421,7 @@ final readonly class FeatureContext implements Context
     {
         $page = $this->session->getPage();
         /** @var array<string, string> $json */
-        $json = \json_decode($page->getContent(), true);
+        $json = json_decode($page->getContent(), true);
         $actualValue = self::walkJsonResponse($json, $path);
         Assert::assertIsArray($actualValue);
         Assert::assertCount($value, $actualValue);
@@ -407,15 +430,15 @@ final readonly class FeatureContext implements Context
     /**
      * @Given /^the response content should start with "([^"]*)"$/
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function theResponseContentShouldStartWith(string $value): void
     {
         $page = $this->session->getPage();
         $bibtex = $page->getContent();
 
-        if (!\is_string($bibtex)) {
-            throw new \Exception('invalid bibtex');
+        if (!is_string($bibtex)) {
+            throw new Exception('invalid bibtex');
         }
 
         if ('' !== $value) {
@@ -426,19 +449,19 @@ final readonly class FeatureContext implements Context
     /**
      * @Given /^each node of the response should respect the bibtex's rules$/
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function eachNodeOfTheResponseShouldRespectTheBibtexSRules(): void
     {
         $page = $this->session->getPage();
         $bibtex = $page->getContent();
 
-        if (!\is_string($bibtex)) {
-            throw new \Exception('invalid bibtex');
+        if (!is_string($bibtex)) {
+            throw new Exception('invalid bibtex');
         }
 
-        $bibtex = \explode(\PHP_EOL, $bibtex);
-        for ($i = 1; $i < \count($bibtex) - 1; ++$i) {
+        $bibtex = explode(PHP_EOL, $bibtex);
+        for ($i = 1; $i < count($bibtex) - 1; ++$i) {
             $pattern = "/^\s*[A-Z_]+(\s*=\s*)(([A-Z][a-z]{2})|(\{[^{}]*\})|(\{\{[^{}]*\}\})),$/";
             $test = $bibtex[$i];
             Assert::assertMatchesRegularExpression($pattern, $test);
@@ -448,20 +471,20 @@ final readonly class FeatureContext implements Context
     /**
      * @Given /^I should see "([^"]*)" in the "([^"]*)" field in my bibtex object$/
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function iShouldSeeInTheFieldInMyBibtexObject(string $value, string $field): void
     {
         $page = $this->session->getPage();
         $bibtex = $page->getContent();
 
-        if (!\is_string($bibtex)) {
-            throw new \Exception('invalid bibtex');
+        if (!is_string($bibtex)) {
+            throw new Exception('invalid bibtex');
         }
 
         $escape = ['/', '(', ')', '{', '}', '\''];
         $replace = ['\/', '\(', '\)', '\{', '\}', '\\\''];
-        $value = \str_replace($escape, $replace, $value);
+        $value = str_replace($escape, $replace, $value);
         $searchPattern = '/'.$field.' = '.$value.'/';
         Assert::assertMatchesRegularExpression($searchPattern, $bibtex);
     }
@@ -469,29 +492,29 @@ final readonly class FeatureContext implements Context
     /**
      * @Given /^the property "([^"]*)" should be present "([^"]*)" time\(s\)$/
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function thePropertyShouldBePresentTimeS(string $property, int $value): void
     {
         $page = $this->session->getPage();
-        $xml = new \SimpleXMLElement($page->getContent());
+        $xml = new SimpleXMLElement($page->getContent());
 
         $xmlValue = $xml->xpath($property);
-        Assert::assertSame($value, \count((array) $xmlValue));
+        Assert::assertSame($value, count((array) $xmlValue));
     }
 
     /**
      * @Given /^the property "([^"]*)" should not be present$/
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function thePropertyShouldNotBePresent(string $property): void
     {
         $page = $this->session->getPage();
-        $xml = new \SimpleXMLElement($page->getContent());
+        $xml = new SimpleXMLElement($page->getContent());
 
         $xmlValue = $xml->xpath($property);
-        Assert::assertSame(0, \count((array) $xmlValue));
+        Assert::assertSame(0, count((array) $xmlValue));
     }
 
     /**
@@ -501,7 +524,7 @@ final readonly class FeatureContext implements Context
      */
     public function commaSeparatedListToArray(string $string): array
     {
-        return \array_map(static fn ($item) => \strtolower(\trim($item)), \explode(',', $string));
+        return array_map(static fn ($item) => strtolower(trim($item)), explode(',', $string));
     }
 
     /**
@@ -512,11 +535,11 @@ final readonly class FeatureContext implements Context
     public function csvHeaderShouldBe(string $delimiter, array $list): void
     {
         $csv = $this->session->getPage()->getContent();
-        $headers = \explode("\n", $csv)[0];
-        $parsed = \array_map(static fn ($item) => \strtolower(\trim($item)), \array_filter(\str_getcsv($headers, $delimiter), static fn ($item) => \is_string($item)));
-        $headers = \implode(',', $parsed);
+        $headers = explode("\n", $csv)[0];
+        $parsed = array_map(static fn ($item) => strtolower(trim($item)), array_filter(str_getcsv($headers, $delimiter), static fn ($item) => is_string($item)));
+        $headers = implode(',', $parsed);
         foreach ($list as $value) {
-            Assert::assertTrue(\in_array($value, $parsed, true), "$value not found in list: $headers");
+            Assert::assertTrue(in_array($value, $parsed, true), "$value not found in list: $headers");
         }
     }
 
@@ -526,12 +549,12 @@ final readonly class FeatureContext implements Context
     public function csvLineShouldContain(string $delimiter, string $needle): void
     {
         $csv = $this->session->getPage()->getContent();
-        $lines = \explode("\n", $csv);
+        $lines = explode("\n", $csv);
         $ok = false;
-        $needle = \trim($needle);
+        $needle = trim($needle);
         foreach ($lines as $line) {
-            $parsed = \array_map(static fn ($item) => \trim($item, "\" \t"), \array_filter(\str_getcsv($line, $delimiter), static fn ($item) => \is_string($item)));
-            $ok = $ok || \in_array($needle, $parsed, true);
+            $parsed = array_map(static fn ($item) => trim($item, "\" \t"), array_filter(str_getcsv($line, $delimiter), static fn ($item) => is_string($item)));
+            $ok = $ok || in_array($needle, $parsed, true);
         }
 
         Assert::assertTrue($ok, "$needle not found in csv file :\n $csv");
@@ -543,7 +566,7 @@ final readonly class FeatureContext implements Context
     public function theCsvShouldHaveLines(int $numberOfLines): void
     {
         $csv = $this->session->getPage()->getContent();
-        $lines = \explode("\n", $csv);
+        $lines = explode("\n", $csv);
         Assert::assertCount($numberOfLines, $lines);
     }
 
@@ -556,7 +579,7 @@ final readonly class FeatureContext implements Context
         $node = $page->find('css', $locator);
 
         if (null !== $node) {
-            throw new \RuntimeException(\sprintf('The element "%s" was found (and should not be).', $locator));
+            throw new RuntimeException(sprintf('The element "%s" was found (and should not be).', $locator));
         }
     }
 
@@ -567,10 +590,10 @@ final readonly class FeatureContext implements Context
      */
     private static function walkJsonResponse(array $json, string $path): mixed
     {
-        $nodes = \explode('.', $path);
+        $nodes = explode('.', $path);
         foreach ($nodes as $node) {
             // Si $node contient un indice de tableau, on récupère la partie JSON associé
-            if ((bool) \preg_match('/^(.*)\[(\d+)]$/', $node, $match)) {
+            if ((bool) preg_match('/^(.*)\[(\d+)]$/', $node, $match)) {
                 /** @var string[] $match
                  */
                 $json = $json[$match[1]][$match[2]];

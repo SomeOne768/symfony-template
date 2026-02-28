@@ -1,98 +1,116 @@
+-include Makefile.common.mk
 -include Makefile.database.mk
 -include Makefile.git.mk
 -include Makefile.extra.mk
 
 #################################
-# Phony targets
-#################################
-.PHONY: all init pull composer npm fix phpstan rector twigcs arkitect qa assets-dev assets-watch db migrate test up down restart build logs bash vendor
-
-#################################
 # Initialization
 #################################
+# On utilise les variables pour que l'init fonctionne aussi en CI si besoin
 init: pull build up vendor yarn db-create dump-load
 
 #################################
 # Docker compose management
 #################################
+.PHONY: pull build start up down restart logs
 pull:
-	docker compose pull
+	$(DOCKER_COMPOSE) pull
 
 build:
-	docker compose build
+	$(DOCKER_COMPOSE) build
 
 start:
-	docker compose up -d
+	$(DOCKER_COMPOSE) up -d
 
 up:
-	docker compose up -d --force-recreate --remove-orphans
+	$(DOCKER_COMPOSE) up -d --force-recreate --remove-orphans
 
 down:
-	docker compose down
-
-restart: down up
+	$(DOCKER_COMPOSE) down
 
 logs:
-	docker compose logs -f
+	$(DOCKER_COMPOSE) logs -f
 
+restart: down up
 
 #################################
 # Composer & NPM commands
 #################################
+.PHONY: composer npm
 composer:
-	docker compose exec php composer $(cmd)
+	$(DOCKER_COMPOSE_EXEC_PHP) composer $(cmd)
 
 npm:
-	docker compose exec node npm $(cmd)
+	$(DOCKER_COMPOSE_EXEC) node npm $(cmd)
 
 #################################
 # Yarn / Node commands
 #################################
+.PHONY: yarn yarn-dev yarn-watch yarn-add
+
+# Ici on utilise ta variable YARN qui fait un "run --rm"
 yarn:
-	docker compose exec node yarn install
+	$(YARN) install
 
 yarn-dev:
-	docker compose exec node yarn dev
+	$(YARN) dev
 
 yarn-watch:
-	docker compose exec node yarn watch
+	$(YARN) watch
+
+yarn-add:
+	$(YARN) add $(packages)
 
 #################################
 # Symfony / Quality tools
 #################################
-
+.PHONY: phpstan twigcs rector rector-dry php-cs-fixer php-cs-fixer-dry php-arkitect vendor
 phpstan:
-	docker compose exec php vendor/bin/phpstan analyse --memory-limit=2G #-1
+	$(DOCKER_COMPOSE_EXEC_PHP) vendor/bin/phpstan analyse --memory-limit=2G
 
 twigcs:
-	docker compose exec php vendor/bin/twigcs templates
+	$(DOCKER_COMPOSE_EXEC_PHP) vendor/bin/twigcs templates
 
 rector:
-	docker compose exec php vendor/bin/rector process src --dry-run
+	$(DOCKER_COMPOSE_EXEC_PHP) vendor/bin/rector process src
+
+rector-dry:
+	$(DOCKER_COMPOSE_EXEC_PHP) vendor/bin/rector process src --dry-run
 
 php-cs-fixer:
-	docker compose exec php php vendor/bin/php-cs-fixer fix
+	$(DOCKER_COMPOSE_EXEC_PHP) php vendor/bin/php-cs-fixer fix --allow-risky=yes
 
-arkitect:
-	docker compose exec php php vendor/bin/phparkitect check
+php-cs-fixer-dry:
+	$(DOCKER_COMPOSE_EXEC_PHP) php vendor/bin/php-cs-fixer fix --allow-risky=yes --dry-run --diff
+
+php-arkitect:
+	$(DOCKER_COMPOSE_EXEC_PHP) php vendor/bin/phparkitect check
 
 vendor:
-	docker compose exec php composer install --prefer-dist --no-interaction
-	docker compose exec node npm install
-	docker compose exec node yarn dev
-
-#################################
-# QA / Code quality
-#################################
-qa-core: php-cs-fixer rector phpstan arkitect twigcs
-
-qa-core-full: qa-core behat phpunit
+	$(DOCKER_COMPOSE_EXEC_PHP) composer install --prefer-dist --no-interaction
+	$(DOCKER_COMPOSE_EXEC) node npm install
+	$(YARN) dev
 
 #################################
 # Tests
 #################################
+.PHONY: phpunit phpunit-functional behat
+
 phpunit:
-	docker compose exec php php bin/phpunit --colors=always
+	$(DOCKER_COMPOSE_EXEC_PHP) php bin/phpunit --colors=always
+
+phpunit-functional:
+	$(DOCKER_COMPOSE_EXEC_PHP) php bin/phpunit --colors=always --group functional
 
 behat:
-	docker compose exec php php vendor/bin/behat --config=behat.yml --format=progress --strict
+	$(DOCKER_COMPOSE_EXEC_PHP) php vendor/bin/behat --config=behat.yml --format=progress --strict
+
+#################################
+# QA / Code quality
+#################################
+.PHONY: qa-core qa-test qa-core-full
+qa-core: php-cs-fixer rector phpstan arkitect twigcs
+
+qa-test: phpunit phpunit-functional behat
+
+qa-full: qa-core qa-test

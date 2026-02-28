@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Behat;
 
 use Behat\Behat\Context\Context;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -42,7 +43,7 @@ final class DemoContext implements Context
     public function theResponseShouldBeReceived(): void
     {
         if (null === $this->response) {
-            throw new \RuntimeException('No response received');
+            throw new RuntimeException('No response received');
         }
     }
 }

@@ -2,7 +2,7 @@
 # Extra tools
 #################################
 cache:
-	docker compose exec php php bin/console cache:clear
+	$(DOCKER_COMPOSE_EXEC_PHP) php bin/console cache:clear
 
 cache-pool-clear:
-	docker compose exec php php bin/console c:p:c --all
+	$(DOCKER_COMPOSE_EXEC_PHP) php bin/console c:p:c --all
