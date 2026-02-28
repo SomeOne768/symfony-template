@@ -88,7 +88,7 @@ php-arkitect:
 	$(PHP_EXEC) vendor/bin/phparkitect check
 
 vendor:
-	$(PHP_EXEC) composer install --prefer-dist --no-interaction
+	$(COMPOSER_EXEC) composer install --prefer-dist --no-interaction
 	$(NPM_EXEC) install
 	$(YARN_EXEC) dev
 
