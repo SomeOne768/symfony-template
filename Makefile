@@ -6,7 +6,6 @@
 #################################
 # Initialization
 #################################
-# On utilise les variables pour que l'init fonctionne aussi en CI si besoin
 init: pull build up vendor yarn db-create dump-load
 
 #################################
@@ -38,78 +37,75 @@ restart: down up
 #################################
 .PHONY: composer npm
 composer:
-	$(DOCKER_COMPOSE_EXEC_PHP) composer $(cmd)
+	$(PHP_EXEC) composer $(cmd)
 
 npm:
-	$(DOCKER_COMPOSE_EXEC) node npm $(cmd)
+	$(NPM_EXEC) $(cmd)
 
 #################################
 # Yarn / Node commands
 #################################
 .PHONY: yarn yarn-dev yarn-watch yarn-add
-
-# Ici on utilise ta variable YARN qui fait un "run --rm"
 yarn:
-	$(YARN) install
+	$(YARN_EXEC) install
 
 yarn-dev:
-	$(YARN) dev
+	$(YARN_EXEC) dev
 
 yarn-watch:
-	$(YARN) watch
+	$(YARN_EXEC) watch
 
 yarn-add:
-	$(YARN) add $(packages)
+	$(YARN_EXEC) add $(packages)
 
 #################################
 # Symfony / Quality tools
 #################################
 .PHONY: phpstan twigcs rector rector-dry php-cs-fixer php-cs-fixer-dry php-arkitect vendor
 phpstan:
-	$(DOCKER_COMPOSE_EXEC_PHP) vendor/bin/phpstan analyse --memory-limit=2G
+	$(PHP_EXEC) vendor/bin/phpstan analyse --memory-limit=2G
 
 twigcs:
-	$(DOCKER_COMPOSE_EXEC_PHP) vendor/bin/twigcs templates
+	$(PHP_EXEC) vendor/bin/twigcs templates
 
 rector:
-	$(DOCKER_COMPOSE_EXEC_PHP) vendor/bin/rector process src
+	$(PHP_EXEC) vendor/bin/rector process src
 
 rector-dry:
-	$(DOCKER_COMPOSE_EXEC_PHP) vendor/bin/rector process src --dry-run
+	$(PHP_EXEC) vendor/bin/rector process src --dry-run
 
 php-cs-fixer:
-	$(DOCKER_COMPOSE_EXEC_PHP) php vendor/bin/php-cs-fixer fix --allow-risky=yes
+	$(PHP_EXEC) vendor/bin/php-cs-fixer fix --allow-risky=yes
 
 php-cs-fixer-dry:
-	$(DOCKER_COMPOSE_EXEC_PHP) php vendor/bin/php-cs-fixer fix --allow-risky=yes --dry-run --diff
+	$(PHP_EXEC) vendor/bin/php-cs-fixer fix --allow-risky=yes --dry-run --diff
 
 php-arkitect:
-	$(DOCKER_COMPOSE_EXEC_PHP) php vendor/bin/phparkitect check
+	$(PHP_EXEC) vendor/bin/phparkitect check
 
 vendor:
-	$(DOCKER_COMPOSE_EXEC_PHP) composer install --prefer-dist --no-interaction
-	$(DOCKER_COMPOSE_EXEC) node npm install
-	$(YARN) dev
+	$(PHP_EXEC) composer install --prefer-dist --no-interaction
+	$(NPM_EXEC) install
+	$(YARN_EXEC) dev
 
 #################################
 # Tests
 #################################
 .PHONY: phpunit phpunit-functional behat
-
 phpunit:
-	$(DOCKER_COMPOSE_EXEC_PHP) php bin/phpunit --colors=always
+	$(PHP_EXEC) bin/phpunit --colors=always
 
 phpunit-functional:
-	$(DOCKER_COMPOSE_EXEC_PHP) php bin/phpunit --colors=always --group functional
+	$(PHP_EXEC) bin/phpunit --colors=always --group functional
 
 behat:
-	$(DOCKER_COMPOSE_EXEC_PHP) php vendor/bin/behat --config=behat.yml --format=progress --strict
+	$(PHP_EXEC) vendor/bin/behat --config=behat.yml --format=progress --strict
 
 #################################
 # QA / Code quality
 #################################
-.PHONY: qa-core qa-test qa-core-full
-qa-core: php-cs-fixer rector phpstan arkitect twigcs
+.PHONY: qa-core qa-test qa-full
+qa-core: php-cs-fixer rector phpstan php-arkitect twigcs
 
 qa-test: phpunit phpunit-functional behat
 
